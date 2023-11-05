@@ -78,15 +78,36 @@ def runtime(instance_quantity, instance, check):
 
 
 def read_results(instance_quantity, ck1, ck2):
-    cl = []
-    clmax = []
+    cl_data = []
+    clmax_in_ck = []
+
     zakres = np.linspace(ck1, ck2, instance_quantity)
     for i in range(0, instance_quantity):
         data = np.loadtxt(f'output{i}.dat', skiprows=12)[:, [0, 1]]
-        clmax_index = data[:, 1].argmax()
-        if clmax_index == 0 or clmax_index == len(data[:, 0]) - 1:
+
+        clmax_in_ck.append(data[:, 1].max())
+
+        clmax_index_in_alfa = (data[:, 1].argmax())
+        if clmax_index_in_alfa == 0 or clmax_index_in_alfa == len(data[:, 0]) - 1:
             print(data)
             raise RuntimeWarning('Coś nie tak, max nie powinien być na 1 miejscu')
-        cl.append(data[clmax_index - 1:clmax_index + 2])
-        for
-    print(cl)
+
+        cl_data.append(data[clmax_index_in_alfa - 1:clmax_index_in_alfa + 2])
+
+    clmax_max_index_in_ck = clmax_in_ck.index(max(clmax_in_ck))
+
+    if clmax_max_index_in_ck == 0:
+        new_ck1 = zakres[0]
+        new_ck2 = zakres[1]
+    elif clmax_max_index_in_ck == len(clmax_in_ck) - 1:
+        new_ck1 = zakres[-2]
+        new_ck2 = zakres[-1]
+    else:
+        new_ck1 = zakres[clmax_max_index_in_ck - 1]
+        new_ck2 = zakres[clmax_max_index_in_ck - 2]
+
+    print(new_ck1, new_ck2)
+
+
+
+    # return new_ck1, new_ck2, new_alfa1, new_alfa2

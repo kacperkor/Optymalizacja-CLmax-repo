@@ -1,6 +1,6 @@
 from functions import initialization, runtime, define_settings, read_results
 
-threads = 4             # Ile wątków xfoila wykorzystać, minimum 3
+threads = 4             # Ile wątków xfoila wykorzystać, minimum 4
 
 #process, check = initialization(0.7, 0.9, 5, 13, threads)
 
