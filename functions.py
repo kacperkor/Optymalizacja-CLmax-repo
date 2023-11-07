@@ -27,7 +27,8 @@ def write_settings(i, ck, alfa0, alfa1, step):
         aseq {alfa0} {alfa1} {step}\n''')
 
 
-def initialization(ck1, ck2, alfa1, alfa2, instance_quantity):
+def initialization(limits, instance_quantity):
+    ck1, ck2, alfa1, alfa2 = limits
     if type(instance_quantity) is not int:
         raise TypeError("Ilość wątków musi być liczbą całkowitą")
     if instance_quantity < 3:
@@ -42,13 +43,14 @@ def initialization(ck1, ck2, alfa1, alfa2, instance_quantity):
         instancelist.append(None)
         checklist.append(None)
 
-    define_settings(ck1, ck2, alfa1, alfa2, instance_quantity)
+    define_settings(limits, instance_quantity)
     return instancelist, checklist
 
 
-def define_settings(ck1, ck2, alfa1, alfa2, instance_quantity):
+def define_settings(limits, instance_quantity):
+    ck1, ck2, alfa1, alfa2 = limits
     zakres = np.linspace(ck1, ck2, instance_quantity)
-    step = (alfa2 - alfa1) / 10
+    step = (alfa2 - alfa1) / 20
     for i in range(0, instance_quantity):
         write_settings(i, zakres[i], alfa1, alfa2, step)
 
@@ -67,6 +69,7 @@ def runtime(instance_quantity, instance, check):
     while True:
         for i in range(0, instance_quantity):
             check[i] = instance[i].poll()  # zwraca None jeśli proces dalej działa
+        time.sleep(1)
         try:
             sum(check)              # sumuje listę, jeśli lista zawiera jakieś None (proces działa) to zwraca TypeError
             break                   # udało się zsumować, czyli nie ma żadnych None (procesy zakończone) -> koniec pętli
@@ -81,24 +84,30 @@ def runtime(instance_quantity, instance, check):
 def read_output(instance_quantity):
     cl_data = []
     clmax_in_ck = []
+    alfa_of_clmax_in_ck = []
     for i in range(0, instance_quantity):
         data = np.loadtxt(f'output{i}.dat', skiprows=12)[:, [0, 1]]
 
-        clmax_in_ck.append(data[:, 1].max())
-
         clmax_index_in_alfa = (data[:, 1].argmax())
+        clmax_in_ck.append(data[clmax_index_in_alfa][1])
+        alfa_of_clmax_in_ck.append(data[clmax_index_in_alfa][0])
+
+        print(i, clmax_in_ck[-1], alfa_of_clmax_in_ck[-1])
+        print(data)
+
         if clmax_index_in_alfa == 0 or clmax_index_in_alfa == len(data[:, 0]) - 1:
-            print(data)
             raise RuntimeWarning('Coś nie tak, max nie powinien być na 1 miejscu')
 
         cl_data.append(data[clmax_index_in_alfa - 1:clmax_index_in_alfa + 2])
 
-    return cl_data, clmax_in_ck
+    return cl_data, clmax_in_ck, alfa_of_clmax_in_ck
 
 
 def read_results(instance_quantity, ck1, ck2):
-    cl_data, clmax_in_ck = read_output(instance_quantity)
     zakres = np.linspace(ck1, ck2, instance_quantity)
+    print(zakres)
+    cl_data, clmax_in_ck, alfa_of_clmax_in_ck = read_output(instance_quantity)
+
 
     clmax_max_index_in_ck = clmax_in_ck.index(max(clmax_in_ck))
 
@@ -119,4 +128,6 @@ def read_results(instance_quantity, ck1, ck2):
     new_alfa1 = cl_data[0][0][0]
     new_alfa2 = cl_data[-1][-1][0]
 
-    return max(clmax_in_ck), new_ck1, new_ck2, new_alfa1, new_alfa2
+    limits = [new_ck1, new_ck2, new_alfa1, new_alfa2]
+
+    return max(clmax_in_ck), zakres[clmax_max_index_in_ck], alfa_of_clmax_in_ck[clmax_max_index_in_ck], limits
