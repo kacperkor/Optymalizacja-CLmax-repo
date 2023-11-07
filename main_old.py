@@ -1,4 +1,4 @@
-from functions import initialization, runtime, define_settings, read_results
+from functions_old import initialization, runtime, define_settings, read_results
 
 threads = 10             # Ile wątków xfoila wykorzystać, minimum 4
 cieciwa1 = 0.7
