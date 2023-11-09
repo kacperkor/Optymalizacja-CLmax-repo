@@ -1,24 +1,30 @@
+import matplotlib.colors
 import numpy as np
 import pandas as pd
 import time
 import subprocess
 import os
 from datetime import timedelta
-
-from functions import initialization, write_settings, read_output
+from matplotlib import pyplot as plt
+from functions import points, initialization, write_settings, read_output
 
 threads = 12             # Ile wątków xfoila wykorzystać
 cieciwa1 = 0.7
-cieciwa2 = 0.8
-alfa1 = 8
-alfa2 = 10
-alfa_step = 0.01
+cieciwa2 = 0.78
+alfa1 = 8.4
+alfa2 = 9.6
+cieciwa_step = 0.01
+alfa_step = 0.5
 
 limits = [cieciwa1, cieciwa2, alfa1, alfa2]
-zakres_cieciw = np.linspace(cieciwa1, cieciwa2, 101)
-zakres_alfa = np.linspace(alfa1, alfa2, 201)
+
+cieciwa_points = points(cieciwa1, cieciwa2, cieciwa_step)
+alfa_points = points(alfa1, alfa2, alfa_step)
+
+zakres_cieciw = np.linspace(cieciwa1, cieciwa2, cieciwa_points)
+zakres_alfa = np.linspace(alfa1, alfa2, alfa_points)
+
 output = pd.DataFrame(index=zakres_alfa)
-print(output)
 
 process_list, free_slot_list = initialization(limits, threads)
 
@@ -68,12 +74,27 @@ for i, process in enumerate(process_list):
             break
         time.sleep(0.1)
 
+end_time = time.monotonic()
+print(timedelta(seconds=end_time - start_time))
+
+
+start_time = time.monotonic()
 
 for i, cieciwa in enumerate(zakres_cieciw):
-    output.insert(i, cieciwa, read_output(cieciwa))
-    print(output)
-
+    output.insert(i, cieciwa, read_output(cieciwa, zakres_alfa))
 
 end_time = time.monotonic()
-
 print(timedelta(seconds=end_time - start_time))
+
+
+print(f"Wartosc maksymalna: CL={output.max(None)} "
+      f"dla cieciwy={output.max(0).idxmax()} i alfa={output.max(1).idxmax()}")
+
+print(output.loc[output.max(1).idxmax(), output.max(0).idxmax()])
+
+
+X, Y = np.meshgrid(output.columns, output.index)
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+ax.plot_surface(X, Y, output, antialiased=True)
+plt.show()
+

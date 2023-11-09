@@ -1,9 +1,15 @@
-import subprocess
 import os
 import numpy as np
-import pandas as pd
-import time
-from datetime import timedelta
+
+
+def points(p1, p2, step, tolerance=1e-7):
+    wartosc = (p2-p1)/step
+
+    if abs((wartosc+1e-8) % 1) > tolerance:
+        raise ValueError("Wartość kroku nieodpowiednia dla zakresu, ilość punktów niecałkowita:",
+                         f"({p2}-{p1})/{step} = {wartosc}")
+
+    return round(wartosc) + 1
 
 
 def write_settings(ck, alfa0, alfa1, step):
@@ -21,7 +27,7 @@ def write_settings(ck, alfa0, alfa1, step):
         re 1e6
         m 0.15
         visc
-        iter 1000
+        iter 500
         pacc
         output{ck}.dat\n
         aseq {alfa0} {alfa1} {step}\n''')
@@ -52,8 +58,19 @@ def initialization(limits, instance_quantity):
     return instancelist, checklist
 
 
-def read_output(cieciwa):
-    data = np.loadtxt(f'output{cieciwa}.dat', skiprows=12)[:, 1]
+def read_output(cieciwa, zakres_alfa):
+    data = np.loadtxt(f'output{cieciwa}.dat', skiprows=12)[:, [0, 1]]
 
-    return data
+    brakujace_alfa = []
+    if len(zakres_alfa) != len(data):
+        for alfa in zakres_alfa:
+            if all(np.abs(data[:, 0] - alfa) > 1e-10):
+                brakujace_alfa.append(alfa)
+
+        print(len(data), cieciwa, brakujace_alfa)
+
+        for alfa in brakujace_alfa:
+            data = np.insert(data, np.searchsorted(data[:, 0], alfa), [alfa, None], axis=0)
+
+    return data[:, 1]
 
