@@ -8,13 +8,13 @@ from datetime import timedelta
 from matplotlib import pyplot as plt
 from functions import points, initialization, write_settings, read_output
 
-threads = 12             # Ile wątków xfoila wykorzystać
+threads = 16            # Ile wątków xfoila wykorzystać
 cieciwa1 = 0.7
-cieciwa2 = 0.78
-alfa1 = 8.4
-alfa2 = 9.6
-cieciwa_step = 0.01
-alfa_step = 0.5
+cieciwa2 = 0.75
+alfa1 = 8.6
+alfa2 = 9.4
+cieciwa_step = 0.0001
+alfa_step = 0.001
 
 limits = [cieciwa1, cieciwa2, alfa1, alfa2]
 
@@ -25,7 +25,7 @@ zakres_cieciw = np.linspace(cieciwa1, cieciwa2, cieciwa_points)
 zakres_alfa = np.linspace(alfa1, alfa2, alfa_points)
 
 output = pd.DataFrame(index=zakres_alfa)
-
+'''
 process_list, free_slot_list = initialization(limits, threads)
 
 start_time = time.monotonic()
@@ -77,7 +77,7 @@ for i, process in enumerate(process_list):
 end_time = time.monotonic()
 print(timedelta(seconds=end_time - start_time))
 
-
+'''
 start_time = time.monotonic()
 
 for i, cieciwa in enumerate(zakres_cieciw):

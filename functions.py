@@ -37,8 +37,6 @@ def initialization(limits, instance_quantity):
     ck1, ck2, alfa1, alfa2 = limits
     if type(instance_quantity) is not int:
         raise TypeError("Ilość wątków musi być liczbą całkowitą")
-    if instance_quantity < 3:
-        raise ValueError("Za mało wątków do przeprowadzenia optymalizacji")
     try:
         ck1+ck2+alfa1+alfa2
     except TypeError:
