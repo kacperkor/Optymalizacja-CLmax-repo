@@ -25,7 +25,7 @@ zakres_cieciw = np.linspace(cieciwa1, cieciwa2, cieciwa_points)
 zakres_alfa = np.linspace(alfa1, alfa2, alfa_points)
 
 output = pd.DataFrame(index=zakres_alfa)
-'''
+
 process_list, free_slot_list = initialization(limits, threads)
 
 start_time = time.monotonic()
@@ -77,7 +77,7 @@ for i, process in enumerate(process_list):
 end_time = time.monotonic()
 print(timedelta(seconds=end_time - start_time))
 
-'''
+
 start_time = time.monotonic()
 
 for i, cieciwa in enumerate(zakres_cieciw):
